@@ -1,14 +1,25 @@
-import { UserButton } from "@clerk/nextjs";
+import { redirect } from "next/navigation"
+import { auth } from "@clerk/nextjs/server"
+import { prisma } from "@/lib/prisma"
 
-export default function ChatPage() {
-  return (
-    <div className="flex min-h-screen items-center justify-center">
-      <div className="text-center">
-        <h1 className="text-2xl font-bold mb-4">
-           You are logged in!
-        </h1>
-        <UserButton />
-      </div>
-    </div>
-  );
+export default async function ChatPage() {
+  const { userId } = await auth()
+
+  if (!userId) redirect("/sign-in")
+
+  // Get latest conversation or create new one
+  const latest = await prisma.conversation.findFirst({
+    where: { userId },
+    orderBy: { updatedAt: "desc" },
+  })
+
+  if (latest) {
+    redirect(`/chat/${latest.id}`)
+  } else {
+    // Create first conversation
+    const newConv = await prisma.conversation.create({
+      data: { userId, title: "New Chat" },
+    })
+    redirect(`/chat/${newConv.id}`)
+  }
 }
