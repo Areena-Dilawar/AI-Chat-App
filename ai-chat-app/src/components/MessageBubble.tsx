@@ -10,27 +10,36 @@ export default function MessageBubble({ role, content }: MessageBubbleProps) {
 
   return (
     <div className={`flex w-full mb-4 ${isUser ? "justify-end" : "justify-start"}`}>
-      {/* Avatar */}
+      {/* AI Avatar */}
       {!isUser && (
-        <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-sm font-bold mr-3 mt-1 shrink-0">
-          AI
+        <div
+          className="w-8 h-8 rounded-2xl flex items-center justify-center text-white text-xs font-bold mr-3 mt-1 shrink-0 shadow-sm"
+          style={{ background: "linear-gradient(135deg, #c084fc, #a855f7)" }}
+        >
+          ✨
         </div>
       )}
 
       {/* Bubble */}
       <div
-        className={`max-w-[70%] px-4 py-3 rounded-2xl text-sm leading-relaxed ${
-          isUser
-            ? "bg-blue-600 text-white rounded-br-sm"
-            : "bg-gray-100 text-gray-800 rounded-bl-sm"
-        }`}
+        className="max-w-[75%] px-4 py-3 rounded-3xl text-sm leading-relaxed shadow-sm"
+        style={{
+          background: isUser ? "var(--user-bubble)" : "var(--ai-bubble)",
+          color: isUser ? "white" : "var(--text-primary)",
+          borderBottomRightRadius: isUser ? "4px" : "24px",
+          borderBottomLeftRadius: isUser ? "24px" : "4px",
+          border: isUser ? "none" : "1px solid var(--border)",
+        }}
       >
         {content}
       </div>
 
       {/* User Avatar */}
       {isUser && (
-        <div className="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center text-white text-sm font-bold ml-3 mt-1 shrink-0">
+        <div
+          className="w-8 h-8 rounded-2xl flex items-center justify-center text-white text-xs font-bold ml-3 mt-1 shrink-0 shadow-sm"
+          style={{ background: "linear-gradient(135deg, #f0abfc, #c084fc)" }}
+        >
           U
         </div>
       )}
