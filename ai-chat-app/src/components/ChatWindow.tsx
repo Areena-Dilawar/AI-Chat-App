@@ -2,7 +2,10 @@
 
 import { useEffect, useRef } from "react"
 import MessageBubble from "./MessageBubble"
-import { Sparkles } from "lucide-react"
+import {
+  Sparkles, PenLine, Lightbulb,
+  Code2, BookOpen, Zap, Globe
+} from "lucide-react"
 
 interface Message {
   id: string
@@ -14,12 +17,59 @@ interface ChatWindowProps {
   messages: Message[]
   isLoading: boolean
   streamingText: string
+  onSuggestion?: (text: string) => void
 }
+
+const suggestions = [
+  {
+    icon: PenLine,
+    title: "Draft an email",
+    subtitle: "Professional writing",
+    prompt: "Write a professional follow-up email to a client after a project meeting",
+    color: "#6c3ce1",
+  },
+  {
+    icon: Code2,
+    title: "Review my code",
+    subtitle: "Debug & optimize",
+    prompt: "Review this React component and suggest performance improvements and best practices",
+    color: "#0ea5e9",
+  },
+  {
+    icon: Lightbulb,
+    title: "Brainstorm ideas",
+    subtitle: "Creative thinking",
+    prompt: "Give me 5 innovative product ideas for a mobile app targeting remote workers in 2025",
+    color: "#f59e0b",
+  },
+  {
+    icon: BookOpen,
+    title: "Explain a concept",
+    subtitle: "Learn anything",
+    prompt: "Explain machine learning in simple terms with a real-world analogy",
+    color: "#10b981",
+  },
+  {
+    icon: Zap,
+    title: "Boost productivity",
+    subtitle: "Work smarter",
+    prompt: "Create a daily productivity system for a software developer working from home",
+    color: "#e85d9a",
+  },
+  {
+    icon: Globe,
+    title: "Research a topic",
+    subtitle: "Deep insights",
+    prompt: "What are the most important trends shaping the future of AI in the next 5 years?",
+    color: "#8b5cf6",
+  },
+]
 
 export default function ChatWindow({
   messages,
   isLoading,
   streamingText,
+  onSuggestion,
 }: ChatWindowProps) {
   const bottomRef = useRef<HTMLDivElement>(null)
 
@@ -28,101 +78,213 @@ export default function ChatWindow({
   }, [messages, streamingText])
 
   return (
-    <div
-      className="flex-1 overflow-y-auto px-6 py-6"
-      style={{ background: "var(--bg-primary)" }}
-    >
-      <div className="max-w-3xl mx-auto">
-        {/* Empty State */}
+    <div style={{
+      flex: 1,
+      overflowY: "auto",
+      background: "var(--q-bg)",
+      position: "relative",
+      fontFamily: "var(--font-dm), 'DM Sans', sans-serif",
+    }}>
+      {/* Ambient background */}
+      <div style={{
+        position: "fixed", top: 0, left: "280px", right: 0, bottom: 0,
+        pointerEvents: "none", zIndex: 0, overflow: "hidden",
+      }}>
+        <div style={{
+          position: "absolute", top: "-150px", right: "-100px",
+          width: "500px", height: "500px",
+          background: "radial-gradient(circle, rgba(108,60,225,0.06) 0%, transparent 65%)",
+          animation: "float 10s ease-in-out infinite",
+        }} />
+        <div style={{
+          position: "absolute", bottom: "50px", left: "10%",
+          width: "400px", height: "400px",
+          background: "radial-gradient(circle, rgba(232,93,154,0.04) 0%, transparent 65%)",
+          animation: "float 8s ease-in-out infinite reverse",
+        }} />
+      </div>
+
+      <div style={{
+        maxWidth: "820px",
+        margin: "0 auto",
+        padding: "32px 28px",
+        position: "relative",
+        zIndex: 1,
+        minHeight: "100%",
+        display: "flex",
+        flexDirection: "column",
+      }}>
+
+        {/* ── Empty State ── */}
         {messages.length === 0 && !isLoading && (
-          <div className="flex flex-col items-center justify-center min-h-[500px] text-center">
-            <div
-              className="w-20 h-20 rounded-3xl flex items-center justify-center mb-6 shadow-lg"
-              style={{ background: "linear-gradient(135deg, #e879f9, #a855f7)" }}
-            >
-              <Sparkles size={36} className="text-white" />
+          <div className="fade-enter" style={{
+            flex: 1,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            paddingTop: "48px",
+          }}>
+
+            {/* Hero icon */}
+            <div style={{
+              width: "80px", height: "80px",
+              borderRadius: "28px",
+              background: "linear-gradient(135deg, #6c3ce1 0%, #8b5cf6 50%, #e85d9a 100%)",
+              display: "flex", alignItems: "center",
+              justifyContent: "center",
+              marginBottom: "24px",
+              boxShadow: "0 12px 40px rgba(108,60,225,0.4), 0 0 80px rgba(108,60,225,0.1)",
+              animation: "float 5s ease-in-out infinite",
+            }}>
+              <Sparkles size={36} color="white" strokeWidth={1.5} />
             </div>
-            <h2
-              className="text-2xl font-bold mb-3"
-              style={{ color: "var(--text-primary)" }}
-            >
-              Hello there! 👋
-            </h2>
-            <p
-              className="text-sm max-w-sm leading-relaxed"
-              style={{ color: "var(--text-muted)" }}
-            >
-              I'm your AI assistant powered by LLaMA. Ask me anything — I'm here to help!
+
+            {/* Heading */}
+            <h1 style={{
+              fontFamily: "var(--font-playfair), 'Playfair Display', serif",
+              fontSize: "32px",
+              fontWeight: 700,
+              letterSpacing: "-0.5px",
+              background: "linear-gradient(135deg, var(--q-text) 0%, var(--q-accent) 50%, var(--q-accent2) 100%)",
+              backgroundSize: "200% auto",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              marginBottom: "12px",
+              animation: "gradient-shift 4s ease infinite",
+            }}>
+              Good to see you.
+            </h1>
+
+            <p style={{
+              fontSize: "15px",
+              color: "var(--q-text2)",
+              maxWidth: "420px",
+              textAlign: "center",
+              lineHeight: 1.7,
+              marginBottom: "48px",
+              fontWeight: 300,
+            }}>
+              I'm AuraChat — your intelligent AI companion. Ask me anything or pick a suggestion below to get started instantly.
             </p>
 
-            {/* Suggestion Pills */}
-            <div className="flex flex-wrap gap-2 mt-8 justify-center">
-              {[
-                "✍️ Help me write something",
-                "💡 Give me an idea",
-                "🔍 Explain a concept",
-                "💻 Help me code",
-              ].map((suggestion) => (
-                <div
-                  key={suggestion}
-                  className="px-4 py-2 rounded-2xl text-sm cursor-pointer transition-all hover:opacity-80"
-                  style={{
-                    background: "var(--bg-secondary)",
-                    color: "var(--text-secondary)",
-                    border: "1px solid var(--border)",
-                  }}
-                >
-                  {suggestion}
-                </div>
-              ))}
+            {/* Suggestions grid */}
+            <div style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(3, 1fr)",
+              gap: "12px",
+              width: "100%",
+              maxWidth: "660px",
+            }}>
+              {suggestions.map((s, i) => {
+                const Icon = s.icon
+                return (
+                  <button
+                    key={i}
+                    onClick={() => onSuggestion?.(s.prompt)}
+                    className="msg-enter"
+                    style={{
+                      padding: "16px",
+                      borderRadius: "16px",
+                      border: "1px solid var(--q-border)",
+                      background: "var(--q-surface)",
+                      cursor: "pointer",
+                      textAlign: "left",
+                      transition: "all 0.25s cubic-bezier(0.34,1.2,0.64,1)",
+                      animationDelay: `${i * 0.06}s`,
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "10px",
+                    }}
+                    onMouseEnter={e => {
+                      e.currentTarget.style.transform = "translateY(-3px) scale(1.01)"
+                      e.currentTarget.style.boxShadow = `0 8px 24px ${s.color}22`
+                      e.currentTarget.style.borderColor = s.color + "55"
+                    }}
+                    onMouseLeave={e => {
+                      e.currentTarget.style.transform = "translateY(0) scale(1)"
+                      e.currentTarget.style.boxShadow = "none"
+                      e.currentTarget.style.borderColor = "var(--q-border)"
+                    }}
+                  >
+                    <div style={{
+                      width: "34px", height: "34px",
+                      borderRadius: "10px",
+                      background: s.color + "18",
+                      border: `1px solid ${s.color}30`,
+                      display: "flex", alignItems: "center",
+                      justifyContent: "center",
+                    }}>
+                      <Icon size={16} color={s.color} strokeWidth={2} />
+                    </div>
+                    <div>
+                      <div style={{
+                        fontSize: "13px",
+                        fontWeight: 600,
+                        color: "var(--q-text)",
+                        marginBottom: "3px",
+                      }}>
+                        {s.title}
+                      </div>
+                      <div style={{
+                        fontSize: "11px",
+                        color: "var(--q-muted)",
+                        fontWeight: 400,
+                      }}>
+                        {s.subtitle}
+                      </div>
+                    </div>
+                  </button>
+                )
+              })}
             </div>
           </div>
         )}
 
-        {/* Messages */}
-        {messages.map((message) => (
-          <MessageBubble
-            key={message.id}
-            role={message.role}
-            content={message.content}
-          />
+        {/* ── Messages ── */}
+        {messages.map((msg) => (
+          <MessageBubble key={msg.id} role={msg.role} content={msg.content} />
         ))}
 
-        {/* Streaming */}
+        {/* ── Streaming ── */}
         {streamingText && (
-          <MessageBubble
-            key="streaming"
-            role="assistant"
-            content={streamingText + "▋"}
-          />
+          <MessageBubble key="streaming" role="assistant" content={streamingText + "▋"} />
         )}
 
-        {/* Loading dots */}
+        {/* ── Loading dots ── */}
         {isLoading && !streamingText && (
-          <div className="flex justify-start mb-4">
-            <div
-              className="w-8 h-8 rounded-2xl flex items-center justify-center text-white text-xs mr-3 mt-1 shrink-0"
-              style={{ background: "linear-gradient(135deg, #c084fc, #a855f7)" }}
-            >
-              ✨
+          <div className="msg-enter" style={{
+            display: "flex",
+            alignItems: "flex-end",
+            gap: "10px",
+            marginBottom: "20px",
+          }}>
+            <div style={{
+              width: "34px", height: "34px",
+              borderRadius: "12px",
+              background: "linear-gradient(135deg, #6c3ce1, #8b5cf6)",
+              display: "flex", alignItems: "center",
+              justifyContent: "center",
+              flexShrink: 0,
+              boxShadow: "0 4px 12px rgba(108,60,225,0.35)",
+            }}>
+              <Sparkles size={15} color="white" strokeWidth={2} />
             </div>
-            <div
-              className="px-5 py-4 rounded-3xl rounded-bl-sm"
-              style={{
-                background: "var(--ai-bubble)",
-                border: "1px solid var(--border)",
-              }}
-            >
-              <div className="flex gap-1.5 items-center">
-                {[0, 150, 300].map((delay) => (
-                  <div
-                    key={delay}
-                    className="w-2 h-2 rounded-full animate-bounce"
-                    style={{
-                      background: "var(--accent)",
-                      animationDelay: `${delay}ms`,
-                    }}
-                  />
+            <div style={{
+              padding: "14px 18px",
+              borderRadius: "6px 20px 20px 20px",
+              background: "var(--q-ai-bubble)",
+              border: "1px solid var(--q-border)",
+              boxShadow: "var(--q-shadow)",
+            }}>
+              <div style={{ display: "flex", gap: "5px", alignItems: "center" }}>
+                {[0, 0.18, 0.36].map((delay, idx) => (
+                  <div key={idx} style={{
+                    width: "7px", height: "7px",
+                    borderRadius: "50%",
+                    background: "var(--q-accent)",
+                    animation: `bounce-dot 1.3s ease-in-out infinite`,
+                    animationDelay: `${delay}s`,
+                  }} />
                 ))}
               </div>
             </div>
